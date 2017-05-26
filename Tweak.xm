@@ -1,12 +1,6 @@
 // Erebus is a dark music app for iOS 10.
 // Built by nathanaccidentally.
 
-@interface UITableViewCollectionCell : UIView
-@end
-
-@interface MusicCollectionView : UIView
-@end
-
 UIColor *const erebusDarkDef = [UIColor colorWithRed:0.13 green:0.13 blue:0.13 alpha:1.0];
 static BOOL enabled = YES;
 
@@ -56,9 +50,6 @@ static BOOL enabled = YES;
 %end
 
 %ctor {
-	%init(_ungrouped, MusicCollectionView = objc_getClass("Music.CompositeCollectionView"),
-					  MusicContainerDetailHeaderView = objc_getClass("Music.ContainerDetailHeaderLockupView"));
-
 	NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/com.nathanaccidentally.erebusprefs.plist"];
 
 	if(prefs) {
