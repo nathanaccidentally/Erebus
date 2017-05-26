@@ -2,6 +2,7 @@
 // Built by nathanaccidentally.
 
 UIColor *const erebusDarkDef = [UIColor colorWithRed:0.13 green:0.13 blue:0.13 alpha:1.0];
+UIColor *const clear = [UIColor clearColor];
 static BOOL enabled = YES;
 
 // Text color needs to come first.
@@ -49,7 +50,49 @@ static BOOL enabled = YES;
 
 %end
 
+// First thing is images. (To fix at least)
+
+%hook UIImageView
+
+-(void)layoutSubviews {
+	if(enabled == YES) {
+		%orig;
+		[self setBackgroundColor:clear];
+	}
+}
+
+-(void)setBackgroundColor:(UIColor *)backgroundColor {
+	if(enabled == YES) {
+		%orig(clear);
+	} else {
+		%orig;
+	}
+}
+
+%end
+
+%hook MusicArtView
+
+-(void)layoutSubviews {
+	if(enabled == YES) {
+		%orig;
+		[self setBackgroundColor:clear];
+	}
+}
+
+-(void)setBackgroundColor:(UIColor *)backgroundColor {
+	if(enabled == YES) {
+		%orig(clear);
+	} else {
+		%orig;
+	}
+}
+
+%end
+
 %ctor {
+	%init(_ungrouped, MusicArtView = objc_getClass("Music.ArtworkComponentImageView"));
+
 	NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/com.nathanaccidentally.erebusprefs.plist"];
 
 	if(prefs) {
