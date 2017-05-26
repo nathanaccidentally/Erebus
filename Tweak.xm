@@ -2,7 +2,6 @@
 // Built by nathanaccidentally.
 
 UIColor *const erebusDarkDef = [UIColor colorWithRed:0.13 green:0.13 blue:0.13 alpha:1.0];
-UIColor *const clear = [UIColor clearColor];
 static BOOL enabled = YES;
 
 // Text color needs to come first.
@@ -27,62 +26,54 @@ static BOOL enabled = YES;
 
 %end
 
-// Let's set the top bar.
-
-%hook UIView
-
--(void)layoutSubviews {
-	if(enabled == YES) {
-		%orig;
-		[self setBackgroundColor:erebusDarkDef];
-	} else {
-		%orig;
-	}
-}
-
--(void)setBackgroundColor:(UIColor *)backgroundColor {
-	if(enabled == YES) {
-		%orig(erebusDarkDef);
-	} else {
-		%orig;
-	}
-}
-
-%end
-
-// First thing is images. (To fix at least)
+// Below should fix issues with album corners.
 
 %hook UIImageView
 
 -(void)layoutSubviews {
 	if(enabled == YES) {
-		%orig;
-		[self setBackgroundColor:clear];
-	}
-}
-
--(void)setBackgroundColor:(UIColor *)backgroundColor {
-	if(enabled == YES) {
-		%orig(clear);
-	} else {
-		%orig;
+		if([NSStringFromClass([self.superview class]) isEqualToString:@"Music.ArtworkComponentImageView"]) {
+			[self setHidden:YES];
+		}
 	}
 }
 
 %end
 
-%hook MusicArtView
+%hook ArtworkImageView
+
+-(CGFloat)_cornerRadius {
+	return 8;
+}
+
+-(void)_setCornerRadius:(CGFloat)cornerRadius {
+	%orig(8);
+}
+
+%end
+
+%hook UIView
 
 -(void)layoutSubviews {
 	if(enabled == YES) {
+		if([NSStringFromClass([self.superview class]) isEqualToString:@"Music.ArtworkComponentImageView"]) {
+			%orig;
+		} else {
+			%orig;
+			[self setBackgroundColor:erebusDarkDef];
+		}
+	} else {
 		%orig;
-		[self setBackgroundColor:clear];
 	}
 }
 
 -(void)setBackgroundColor:(UIColor *)backgroundColor {
 	if(enabled == YES) {
-		%orig(clear);
+		if([NSStringFromClass([self.superview class]) isEqualToString:@"Music.ArtworkComponentImageView"]) { // If it's an image.
+			%orig;
+		} else {
+			%orig(erebusDarkDef);
+		}
 	} else {
 		%orig;
 	}
@@ -91,7 +82,8 @@ static BOOL enabled = YES;
 %end
 
 %ctor {
-	%init(_ungrouped, MusicArtView = objc_getClass("Music.ArtworkComponentImageView"));
+	%init(_ungrouped, ArtworkImageView = objc_getClass("Music.ArtworkComponentImageView"));
+
 
 	NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/com.nathanaccidentally.erebusprefs.plist"];
 
