@@ -107,7 +107,7 @@ static BOOL enabled = YES;
 %hook UIView
 
 -(void)layoutSubviews {
-	if(enabled == YES && [NSStringFromClass([self.superview class]) isEqualToString:@"_UIVisualEffectBackdropView"]) {
+	if(enabled == YES) {
 		%orig;
 		[self setBackgroundColor:erebusDarkDef];
 	} else {
@@ -116,7 +116,7 @@ static BOOL enabled = YES;
 }
 
 -(void)setBackgroundColor:(UIColor *)backgroundColor {
-	if(enabled == YES && [NSStringFromClass([self.superview class]) isEqualToString:@"_UIVisualEffectBackdropView"]) {
+	if(enabled == YES) {
 		%orig(erebusDarkDef);
 	} else {
 		%orig;
