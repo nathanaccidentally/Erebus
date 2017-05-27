@@ -14,4 +14,8 @@
 	system("killall SpringBoard");
 }
 
+-(void)openDonate {
+	[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://paypal.me/nathanaccidentally"]];
+}
+
 @end
