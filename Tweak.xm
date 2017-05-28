@@ -3,7 +3,9 @@
 
 UIColor *const erebusDarkDef = [UIColor colorWithRed:0.13 green:0.13 blue:0.13 alpha:1.0];
 UIColor *const erebusDarkCtDef = [UIColor colorWithRed:0.29 green:0.29 blue:0.29 alpha:1.0];
+UIColor *const erebusLightDef = [UIColor colorWithRed:0.61 green:0.61 blue:0.61 alpha:1.0];
 static BOOL enabled = YES;
+static BOOL readTextEnabled = YES;
 static BOOL noctis = NO;
 
 // Text color needs to come first.
@@ -45,27 +47,43 @@ static BOOL noctis = NO;
 %hook MusicImageView
 
 -(CGFloat)_cornerRadius {
-	return 5;
+	return 6;
 }
 
 -(void)layoutSubviews {
 	%orig;
-	[self setCornerRadius:5];
+	[self setCornerRadius:6];
 }
 
 %end
 
-// If high contrast is enabled, the nav bar will be slightly lighter.
+%hook _TtCVV5Music4Text7Drawing4View
+
+-(CGFloat)_cornerRadius {
+	return 6;
+}
+
+-(void)layoutSubviews {
+	%orig;
+	[self setCornerRadius:6];
+}
+
+%end
 
 %hook UIView
 
 -(void)layoutSubviews {
 	if (enabled) {
-		if([NSStringFromClass([self.superview class]) isEqualToString:@"Music.ArtworkComponentImageView"]) {
+		if ([NSStringFromClass([self.superview class]) isEqualToString:@"Music.ArtworkComponentImageView"]) {
 			%orig;
 		} else {
-			%orig;
-			[self setBackgroundColor:erebusDarkDef];
+			if ([NSStringFromClass([self.superview class]) isEqualToString:@"_TtCV5Music4Text9StackView"] && readTextEnabled == YES) {
+				%orig;
+				[self setBackgroundColor:erebusLightDef];
+			} else {
+				%orig;
+				[self setBackgroundColor:erebusDarkDef];
+			}
 		}
 	} else {
 		%orig;
@@ -77,7 +95,11 @@ static BOOL noctis = NO;
 		if ([NSStringFromClass([self.superview class]) isEqualToString:@"Music.ArtworkComponentImageView"]) { // If it's an image.
 			%orig;
 		} else {
-			%orig(erebusDarkDef);
+			if ([NSStringFromClass([self.superview class]) isEqualToString:@"_TtCV5Music4Text9StackView"] && readTextEnabled == YES) {
+				%orig(erebusLightDef);
+			} else {
+				%orig(erebusDarkDef);
+			}
 		}
 	} else {
 		%orig;
@@ -97,6 +119,10 @@ static BOOL noctis = NO;
 	if (prefs) {
 		if ([prefs objectForKey:@"isEnabled"]) {
 			enabled = [[prefs valueForKey:@"isEnabled"] boolValue];
+		}
+
+		if ([prefs objectForKey:@"readTextEnabled"]) {
+			readTextEnabled = [[prefs valueForKey:@"readTextEnabled"] boolValue];
 		}
 
 		if ([[prefs objectForKey:@"noctisEnabled"] boolValue] == YES) {
