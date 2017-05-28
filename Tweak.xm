@@ -6,6 +6,7 @@ UIColor *const erebusDarkCtDef = [UIColor colorWithRed:0.29 green:0.29 blue:0.29
 UIColor *const erebusLightDef = [UIColor colorWithRed:0.29 green:0.29 blue:0.29 alpha:1.0];
 static BOOL enabled = YES;
 static BOOL readTextEnabled = YES;
+static BOOL gradient = NO;
 static BOOL noctis = NO;
 
 // Text color needs to come first.
@@ -75,6 +76,22 @@ static BOOL noctis = NO;
 
 %end
 
+%hook MusicGradientView
+
+-(void)layoutSubviews {
+	%orig;
+	if (gradient == NO) {
+		%orig;
+		[self setHidden:YES];
+	} else {
+		%orig;
+	}
+}
+
+// The gradient views are gradients in the background of things that look ugly.
+
+%end
+
 %hook UIView
 
 -(void)layoutSubviews {
@@ -114,10 +131,10 @@ static BOOL noctis = NO;
 %end
 
 // Compatible with Noctis.
-// Thanks to LaughingQuoll for help with Noctis support.
+// Thanks to LaughingQuoll and Cyanisaac for help with Noctis support.
 
 %ctor {
-	%init(_ungrouped, MusicImageView = objc_getClass("Music.ArtworkComponentImageView"));
+	%init(_ungrouped, MusicImageView = objc_getClass("Music.ArtworkComponentImageView"), MusicGradientView = objc_getClass("Music.GradientView"));
 
 	NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/com.nathanaccidentally.erebusprefs.plist"];
 	NSMutableDictionary *noctisPrefs = [[NSMutableDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/com.laughingquoll.noctisprefs.plist"];
@@ -129,6 +146,10 @@ static BOOL noctis = NO;
 
 		if ([prefs objectForKey:@"readTextEnabled"]) {
 			readTextEnabled = [[prefs valueForKey:@"readTextEnabled"] boolValue];
+		}
+
+		if ([prefs objectForKey:@"gradient"]) {
+			gradient = [[prefs valueForKey:@"gradient"] boolValue];
 		}
 
 		if ([[prefs objectForKey:@"noctisEnabled"] boolValue] == YES) {
