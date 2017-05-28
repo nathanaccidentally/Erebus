@@ -3,7 +3,7 @@
 
 UIColor *const erebusDarkDef = [UIColor colorWithRed:0.13 green:0.13 blue:0.13 alpha:1.0];
 UIColor *const erebusDarkCtDef = [UIColor colorWithRed:0.29 green:0.29 blue:0.29 alpha:1.0];
-UIColor *const erebusLightDef = [UIColor colorWithRed:0.61 green:0.61 blue:0.61 alpha:1.0];
+UIColor *const erebusLightDef = [UIColor colorWithRed:0.29 green:0.29 blue:0.29 alpha:1.0];
 static BOOL enabled = YES;
 static BOOL readTextEnabled = YES;
 static BOOL noctis = NO;
@@ -59,14 +59,19 @@ static BOOL noctis = NO;
 
 %hook _TtCVV5Music4Text7Drawing4View
 
+// Should set the background view of the readTextEnabled to rounded corners.
+
 -(CGFloat)_cornerRadius {
 	return 6;
 }
 
 -(void)layoutSubviews {
 	%orig;
+	[self setClipsToBounds:YES];
 	[self setCornerRadius:6];
 }
+
+// ^ Should pad text a little bit to make it more readable.
 
 %end
 
@@ -77,7 +82,7 @@ static BOOL noctis = NO;
 		if ([NSStringFromClass([self.superview class]) isEqualToString:@"Music.ArtworkComponentImageView"]) {
 			%orig;
 		} else {
-			if ([NSStringFromClass([self.superview class]) isEqualToString:@"_TtCV5Music4Text9StackView"] && readTextEnabled == YES) {
+			if ([NSStringFromClass([self.superview class]) isEqualToString:@"_TtCV5Music4Text9StackView"] && readTextEnabled == YES && enabled == YES) {
 				%orig;
 				[self setBackgroundColor:erebusLightDef];
 			} else {
@@ -109,6 +114,7 @@ static BOOL noctis = NO;
 %end
 
 // Compatible with Noctis.
+// Thanks to LaughingQuoll for help with Noctis support.
 
 %ctor {
 	%init(_ungrouped, MusicImageView = objc_getClass("Music.ArtworkComponentImageView"));
