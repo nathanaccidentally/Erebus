@@ -4,12 +4,17 @@
 UIColor *const erebusDarkDef = [UIColor colorWithRed:0.13 green:0.13 blue:0.13 alpha:1.0];
 UIColor *const erebusDarkCtDef = [UIColor colorWithRed:0.29 green:0.29 blue:0.29 alpha:1.0];
 UIColor *const erebusLightDef = [UIColor colorWithRed:0.29 green:0.29 blue:0.29 alpha:1.0];
+UIColor *const erebusWhiteDef = [UIColor whiteColor];
 static BOOL enabled = YES;
 static BOOL readTextEnabled = YES;
 static BOOL gradient = NO;
+static BOOL highContrast = YES;
 static BOOL noctis = NO;
 
 // Text color needs to come first.
+
+@interface _TtCV5Music4Text9StackView : UIView
+@end
 
 %hook UILabel
 
@@ -76,6 +81,18 @@ static BOOL noctis = NO;
 
 %end
 
+%hook _TtCV5Music4Text9StackView
+
+-(void)layoutSubviews {
+	%orig;
+	if ([NSStringFromClass([self.superview class]) isEqualToString:@"UIImageView"] && gradient == NO) {
+		%orig;
+		[self setHidden:YES];
+	}
+}
+
+%end
+
 %hook MusicGradientView
 
 -(void)layoutSubviews {
@@ -96,16 +113,20 @@ static BOOL noctis = NO;
 
 -(void)layoutSubviews {
 	if (enabled) {
-		if ([NSStringFromClass([self.superview class]) isEqualToString:@"Music.ArtworkComponentImageView"]) {
+		if ([self.superview isMemberOfClass:objc_getClass("Music.ArtworkComponentImageView")]) {
 			%orig;
+		} else if ([self.superview isMemberOfClass: %c(_TtCV5Music4Text9StackView)] && readTextEnabled && highContrast == NO) {
+			%orig;
+			[self setBackgroundColor:erebusLightDef];
+		} else if ([self.superview isMemberOfClass: %c(_TtCV5Music4Text9StackView)] && readTextEnabled && highContrast) {
+			%orig;
+			[self setBackgroundColor:erebusWhiteDef];
+		} else if ([self isKindOfClass: %c(UIKBBackdropView)]) {
+			%orig;
+			[self setBackgroundColor:erebusWhiteDef];
 		} else {
-			if ([NSStringFromClass([self.superview class]) isEqualToString:@"_TtCV5Music4Text9StackView"] && readTextEnabled == YES && enabled == YES) {
-				%orig;
-				[self setBackgroundColor:erebusLightDef];
-			} else {
-				%orig;
-				[self setBackgroundColor:erebusDarkDef];
-			}
+			%orig;
+			[self setBackgroundColor:erebusDarkDef];
 		}
 	} else {
 		%orig;
@@ -114,14 +135,16 @@ static BOOL noctis = NO;
 
 -(void)setBackgroundColor:(UIColor *)backgroundColor {
 	if (enabled) {
-		if ([NSStringFromClass([self.superview class]) isEqualToString:@"Music.ArtworkComponentImageView"]) { // If it's an image.
+		if ([self.superview isMemberOfClass:objc_getClass("Music.ArtworkComponentImageView")]) { // If it's an image or the keyboard.
 			%orig;
+		} else if ([self.superview isMemberOfClass: %c(_TtCV5Music4Text9StackView)] && readTextEnabled && highContrast == NO) {
+			%orig(erebusLightDef);
+		} else if ([self.superview isMemberOfClass: %c(_TtCV5Music4Text9StackView)] && readTextEnabled && highContrast) {
+			%orig(erebusWhiteDef);
+		} else if ([self isKindOfClass: %c(UIKBBackdropView)]) {
+			%orig(erebusWhiteDef);
 		} else {
-			if ([NSStringFromClass([self.superview class]) isEqualToString:@"_TtCV5Music4Text9StackView"] && readTextEnabled == YES) {
-				%orig(erebusLightDef);
-			} else {
-				%orig(erebusDarkDef);
-			}
+			%orig(erebusDarkDef);
 		}
 	} else {
 		%orig;
@@ -150,6 +173,10 @@ static BOOL noctis = NO;
 
 		if ([prefs objectForKey:@"gradient"]) {
 			gradient = [[prefs valueForKey:@"gradient"] boolValue];
+		}
+
+		if ([prefs objectForKey:@"highContrast"]) {
+			highContrast = [[prefs valueForKey:@"highContrast"] boolValue];
 		}
 
 		if ([[prefs objectForKey:@"noctisEnabled"] boolValue] == YES) {
