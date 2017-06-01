@@ -9,6 +9,7 @@ static BOOL enabled = YES;
 static BOOL readTextEnabled = YES;
 static BOOL gradient = NO;
 static BOOL highContrast = YES;
+static BOOL colorFlow = NO;
 static BOOL noctis = NO;
 
 // Text color needs to come first.
@@ -121,9 +122,8 @@ static BOOL noctis = NO;
 		} else if ([self.superview isMemberOfClass: %c(_TtCV5Music4Text9StackView)] && readTextEnabled && highContrast) {
 			%orig;
 			[self setBackgroundColor:erebusWhiteDef];
-		} else if ([self isKindOfClass: %c(UIKBBackdropView)]) {
+		} else if ([self isMemberOfClass: %c(_UIKBCompatInputView)] && colorFlow) {
 			%orig;
-			[self setBackgroundColor:erebusWhiteDef];
 		} else {
 			%orig;
 			[self setBackgroundColor:erebusDarkDef];
@@ -141,8 +141,8 @@ static BOOL noctis = NO;
 			%orig(erebusLightDef);
 		} else if ([self.superview isMemberOfClass: %c(_TtCV5Music4Text9StackView)] && readTextEnabled && highContrast) {
 			%orig(erebusWhiteDef);
-		} else if ([self isKindOfClass: %c(UIKBBackdropView)]) {
-			%orig(erebusWhiteDef);
+		} else if ([self isMemberOfClass: %c(_UIKBCompatInputView)] && colorFlow) {
+			%orig;
 		} else {
 			%orig(erebusDarkDef);
 		}
@@ -161,6 +161,15 @@ static BOOL noctis = NO;
 
 	NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/com.nathanaccidentally.erebusprefs.plist"];
 	NSMutableDictionary *noctisPrefs = [[NSMutableDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/com.laughingquoll.noctisprefs.plist"];
+	NSMutableDictionary *colorFlowPrefs = [[NSMutableDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/com.golddavid.colorflow3.plist"];
+
+	// ColorFlow 3 Support.
+
+	if ([[NSFileManager defaultManager] fileExistsAtPath:@"/Library/MobileSubstrate/DynamicLibraries/ColorFlow.dylib"]) {
+		if (colorFlowPrefs && [[colorFlowPrefs valueForKey:@"MusicEnabled"] boolValue] == YES) {
+			colorFlow = YES;
+		}
+	}
 
 	if (prefs) {
 		if ([prefs objectForKey:@"isEnabled"]) {
