@@ -11,6 +11,7 @@ static BOOL gradient = NO;
 static BOOL highContrast = YES;
 static BOOL colorFlow = NO;
 static BOOL noctis = NO;
+static NSInteger imageRadius = 6;
 
 // Text color needs to come first.
 
@@ -54,12 +55,12 @@ static BOOL noctis = NO;
 %hook MusicImageView
 
 -(CGFloat)_cornerRadius {
-	return 6;
+	return imageRadius;
 }
 
 -(void)layoutSubviews {
 	%orig;
-	[self setCornerRadius:6];
+	[self setCornerRadius:imageRadius];
 }
 
 %end
@@ -113,6 +114,7 @@ static BOOL noctis = NO;
 %hook UIView
 
 -(void)layoutSubviews {
+	%orig;
 	if (enabled) {
 		if ([self.superview isMemberOfClass:objc_getClass("Music.ArtworkComponentImageView")]) {
 			%orig;
@@ -122,7 +124,7 @@ static BOOL noctis = NO;
 		} else if ([self.superview isMemberOfClass: %c(_TtCV5Music4Text9StackView)] && readTextEnabled && highContrast) {
 			%orig;
 			[self setBackgroundColor:erebusWhiteDef];
-		} else if ([self isMemberOfClass: %c(_UIKBCompatInputView)] && colorFlow) {
+		} else if ([self.superview isMemberOfClass:objc_getClass("_UIVisualEffectContentView")] && colorFlow) {
 			%orig;
 		} else {
 			%orig;
@@ -131,22 +133,31 @@ static BOOL noctis = NO;
 	} else {
 		%orig;
 	}
+
+	if ([self.superview isMemberOfClass:objc_getClass("_UIVisualEffectContentView")] && colorFlow) {
+		%orig;
+	}
 }
 
 -(void)setBackgroundColor:(UIColor *)backgroundColor {
-	if (enabled) {
-		if ([self.superview isMemberOfClass:objc_getClass("Music.ArtworkComponentImageView")]) { // If it's an image or the keyboard.
+	%orig;
+	if (enabled && colorFlow == NO) {
+		if ([self.superview isMemberOfClass:objc_getClass("Music.ArtworkComponentImageView")]) { // If it's an image.
 			%orig;
 		} else if ([self.superview isMemberOfClass: %c(_TtCV5Music4Text9StackView)] && readTextEnabled && highContrast == NO) {
 			%orig(erebusLightDef);
 		} else if ([self.superview isMemberOfClass: %c(_TtCV5Music4Text9StackView)] && readTextEnabled && highContrast) {
 			%orig(erebusWhiteDef);
-		} else if ([self isMemberOfClass: %c(_UIKBCompatInputView)] && colorFlow) {
+		} else if ([self.superview isMemberOfClass:objc_getClass("_UIVisualEffectContentView")] && colorFlow) {
 			%orig;
 		} else {
 			%orig(erebusDarkDef);
 		}
 	} else {
+		%orig;
+	}
+
+	if ([self.superview isMemberOfClass:objc_getClass("_UIVisualEffectContentView")] && colorFlow) {
 		%orig;
 	}
 }
@@ -165,9 +176,10 @@ static BOOL noctis = NO;
 
 	// ColorFlow 3 Support.
 
-	if ([[NSFileManager defaultManager] fileExistsAtPath:@"/Library/MobileSubstrate/DynamicLibraries/ColorFlow.dylib"]) {
-		if (colorFlowPrefs && [[colorFlowPrefs valueForKey:@"MusicEnabled"] boolValue] == YES) {
-			colorFlow = YES;
+	
+	if (colorFlowPrefs) {
+		if ([colorFlowPrefs objectForKey:@"MusicEnabled"]) {
+			colorFlow = [[colorFlowPrefs valueForKey:@"MusicEnabled"] boolValue];
 		}
 	}
 
@@ -187,6 +199,12 @@ static BOOL noctis = NO;
 		if ([prefs objectForKey:@"highContrast"]) {
 			highContrast = [[prefs valueForKey:@"highContrast"] boolValue];
 		}
+
+		if ([prefs objectForKey:@"imageRadius"]) {
+			imageRadius = [[prefs valueForKey:@"imageRadius"] intValue];
+		}
+
+		// ^ Should allow you to change all images in the Music app radius.
 
 		if ([[prefs objectForKey:@"noctisEnabled"] boolValue] == YES) {
 			if([noctisPrefs objectForKey:@"enabled"]) {

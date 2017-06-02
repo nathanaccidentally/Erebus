@@ -91,6 +91,22 @@
 			<string>Other ✨</string>
 		</dict>
 		<dict>
+    		<key>cell</key>
+    		<string>PSEditTextCell</string>
+    		<key>placeholder</key>
+   		 	<string>6</string>
+   		 	<key>bestGuess</key>
+   		 	<string>6</string>
+   		 	<key>defaults</key>
+   		 	<string>com.nathanaccidentally.erebus</string>
+   			<key>isNumeric</key>
+   		 	<true/>
+   		 	<key>key</key>
+   		 	<string>imageRadius</string>
+   		 	<key>label</key>
+    		<string>Image Radius 📺</string>
+		</dict>
+		<dict>
 			<key>action</key>
 			<string>openDonate</string>
 			<key>cell</key>
