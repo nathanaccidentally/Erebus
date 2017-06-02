@@ -113,31 +113,50 @@ static NSInteger imageRadius = 6;
 
 %hook UIView
 
+// ColorFlow 3 support thanks to DavidGoldman and AppleBetas.
+
+-(void)viewDidLoad {
+	%orig;
+	if (enabled && colorFlow) {
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(colorizeUI:) name:@"ColorFlowMusicAppColorizationNotification" object:nil];
+	}
+}
+
+-(void)colorizeUI:(NSNotification *)notification {
+    NSDictionary *userInfo = [notification userInfo];
+    UIColor *primaryColor = userInfo[@"PrimaryColor"];
+
+    if ([self.superview isMemberOfClass:objc_getClass("_UIVisualEffectContentView")]) {
+    	[self setBackgroundColor:primaryColor];
+    }
+
+    if ([self.superview isMemberOfClass:objc_getClass("Music.NowPlayingTransportControlStackView")]) {
+    	%orig;
+    	[self setBackgroundColor:primaryColor];
+    }
+}
+
+// ColorFlow over.
+
 -(void)layoutSubviews {
 	%orig;
 	if (enabled) {
 		if ([self.superview isMemberOfClass:objc_getClass("Music.ArtworkComponentImageView")]) {
 			%orig;
 		} else if ([self.superview isMemberOfClass: %c(_TtCV5Music4Text9StackView)] && readTextEnabled && highContrast == NO) {
-			%orig;
 			[self setBackgroundColor:erebusLightDef];
 		} else if ([self.superview isMemberOfClass: %c(_TtCV5Music4Text9StackView)] && readTextEnabled && highContrast) {
-			%orig;
 			[self setBackgroundColor:erebusWhiteDef];
 		} else if ([self.superview isMemberOfClass:objc_getClass("_UIVisualEffectContentView")] && colorFlow) {
 			%orig;
 		} else {
-			%orig;
 			[self setBackgroundColor:erebusDarkDef];
 		}
 	} else {
 		%orig;
 	}
-
-	if ([self.superview isMemberOfClass:objc_getClass("_UIVisualEffectContentView")] && colorFlow) {
-		%orig;
-	}
 }
+
 
 -(void)setBackgroundColor:(UIColor *)backgroundColor {
 	%orig;
@@ -154,10 +173,6 @@ static NSInteger imageRadius = 6;
 			%orig(erebusDarkDef);
 		}
 	} else {
-		%orig;
-	}
-
-	if ([self.superview isMemberOfClass:objc_getClass("_UIVisualEffectContentView")] && colorFlow) {
 		%orig;
 	}
 }
@@ -214,7 +229,6 @@ static NSInteger imageRadius = 6;
 					enabled = NO;
 				}
 			}
-
 		}
 	}
 }
