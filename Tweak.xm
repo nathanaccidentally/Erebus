@@ -5,6 +5,7 @@ UIColor *const erebusDarkDef = [UIColor colorWithRed:0.13 green:0.13 blue:0.13 a
 UIColor *const erebusDarkCtDef = [UIColor colorWithRed:0.29 green:0.29 blue:0.29 alpha:1.0];
 UIColor *const erebusLightDef = [UIColor colorWithRed:0.29 green:0.29 blue:0.29 alpha:1.0];
 UIColor *const erebusWhiteDef = [UIColor whiteColor];
+UIColor *primaryColor;
 static BOOL enabled = YES;
 static BOOL readTextEnabled = YES;
 static BOOL gradient = NO;
@@ -124,14 +125,9 @@ static NSInteger imageRadius = 6;
 
 -(void)colorizeUI:(NSNotification *)notification {
     NSDictionary *userInfo = [notification userInfo];
-    UIColor *primaryColor = userInfo[@"PrimaryColor"];
+    primaryColor = userInfo[@"PrimaryColor"];
 
     if ([self.superview isMemberOfClass:objc_getClass("_UIVisualEffectContentView")]) {
-    	[self setBackgroundColor:primaryColor];
-    }
-
-    if ([self.superview isMemberOfClass:objc_getClass("Music.NowPlayingTransportControlStackView")]) {
-    	%orig;
     	[self setBackgroundColor:primaryColor];
     }
 }
@@ -149,7 +145,9 @@ static NSInteger imageRadius = 6;
 			[self setBackgroundColor:erebusWhiteDef];
 		} else if ([self.superview isMemberOfClass:objc_getClass("_UIVisualEffectContentView")] && colorFlow) {
 			%orig;
-		} else {
+		} else if ([self.superview isMemberOfClass:objc_getClass("Music.NowPlayingTransportControlStackView")]) {
+    		[self setBackgroundColor:primaryColor];
+    	} else {
 			[self setBackgroundColor:erebusDarkDef];
 		}
 	} else {
@@ -169,7 +167,9 @@ static NSInteger imageRadius = 6;
 			%orig(erebusWhiteDef);
 		} else if ([self.superview isMemberOfClass:objc_getClass("_UIVisualEffectContentView")] && colorFlow) {
 			%orig;
-		} else {
+		} else if ([self.superview isMemberOfClass:objc_getClass("Music.NowPlayingTransportControlStackView")]) {
+    		%orig(primaryColor);
+    	} else {
 			%orig(erebusDarkDef);
 		}
 	} else {
