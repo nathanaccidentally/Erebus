@@ -18,4 +18,8 @@
 	[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://paypal.me/nathanaccidentally"]];
 }
 
+-(void)tweetMe {
+	[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://twitter.com/clichewow"]];
+}
+
 @end

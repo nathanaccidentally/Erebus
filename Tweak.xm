@@ -1,5 +1,5 @@
 // Erebus is a dark music app for iOS 10.
-// Built by nathanaccidentally.
+// Built by nathanaccidentally. A tired boy.
 
 UIColor *const erebusDarkDef = [UIColor colorWithRed:0.13 green:0.13 blue:0.13 alpha:1.0];
 UIColor *const erebusDarkCtDef = [UIColor colorWithRed:0.29 green:0.29 blue:0.29 alpha:1.0];
@@ -23,39 +23,19 @@ static NSInteger imageRadius = 6;
 %hook UILabel
 
 -(UIColor *)textColor {
-    if (enabled) return [UIColor whiteColor];
-    return %orig;
+	if (enabled) {
+		return [UIColor whiteColor];
+	} else {
+		return %orig;
+	}
 }
 
 -(void)setTextColor:(UIColor *)textColor {
-    if(enabled) textColor = [UIColor whiteColor];
-    %orig;
-}
-
-%end
-
-// Make status bar white
-
-%hook UIStatusBar
-
--(UIColor *)foregroundColor {
-    return [UIColor whiteColor];
-}
-
-%end
-
-// Tries (and I think fails) to set the activity indicators to all be white
-
-%hook UIActivityIndicatorView
-
--(void)setActivityIndicatorViewStyle:(UIActivityIndicatorViewStyle)style {
-    if(style == UIActivityIndicatorViewStyleGray) style = UIActivityIndicatorViewStyleWhite;
-    %orig;
-}
-
--(void)setColor:(UIColor *)color {
-    color = [UIColor whiteColor];
-    %orig;
+	if (enabled) {
+		%orig([UIColor whiteColor]);
+	} else {
+		return %orig;
+	}
 }
 
 %end
@@ -74,11 +54,12 @@ static NSInteger imageRadius = 6;
 
 %end
 
-%hook MusicTabBarPaletteBlurEffect
+// Status bar thanks to AppleBetas.
 
-+(id)effectWithStyle:(long long)arg1 {
-    if(arg1 == UIBlurEffectStyleDark) arg1 = UIBlurEffectStyleLight;
-    return %orig;
+%hook UIStatusBar
+
+-(UIColor *)foregroundColor {
+    return [UIColor whiteColor];
 }
 
 %end
@@ -118,7 +99,10 @@ static NSInteger imageRadius = 6;
 
 -(void)layoutSubviews {
 	%orig;
-	if ([NSStringFromClass([self.superview class]) isEqualToString:@"UIImageView"] && !gradient) [self setHidden:YES];
+	if ([NSStringFromClass([self.superview class]) isEqualToString:@"UIImageView"] && gradient == NO) {
+		%orig;
+		[self setHidden:YES];
+	}
 }
 
 %end
@@ -127,7 +111,9 @@ static NSInteger imageRadius = 6;
 
 -(void)layoutSubviews {
 	%orig;
-	if (!gradient) [self setHidden:YES];
+	if (gradient == NO) {
+		[self setHidden:YES];
+	}
 }
 
 // The gradient views are gradients in the background of things that look ugly.
@@ -137,11 +123,36 @@ static NSInteger imageRadius = 6;
 %hook MPUMarqueeView
 
 -(void)layoutSubviews {
-	if (enabled && !artistTitle) {
+	%orig;
+	if (enabled && artistTitle == NO && [self.superview isMemberOfClass: %c(UIStackView)]) { // Should hide if it's what we want.
 		[self setHidden:YES];
 	}
 }
 
+%end
+
+// Gonna remove table cells.
+
+%hook UITableView
+
+-(void)setSeparatorStyle:(long long)arg1
+{
+	%orig(0);
+}
+
+%end
+	
+%hook UITableViewCellSeparatorView
+
+-(void)setSeparatorEffect:(id)arg1
+{
+	%orig(0);
+}
+
+-(id)separatorEffect
+{
+	return 0;
+}
 %end
 
 %hook UIView
@@ -168,26 +179,45 @@ static NSInteger imageRadius = 6;
 
 -(void)layoutSubviews {
 	%orig;
-    // We probably don't need this line anyways, but I kept it just in case.
-    [self setBackgroundColor:[self backgroundColor]];
+	if (enabled) {
+		if ([self.superview isMemberOfClass:objc_getClass("Music.ArtworkComponentImageView")]) {
+			// Do nothing.
+		} else if ([self.superview isMemberOfClass: %c(_TtCV5Music4Text9StackView)] && readTextEnabled && highContrast == NO) {
+			[self setBackgroundColor:erebusLightDef];
+		} else if ([self.superview isMemberOfClass: %c(_TtCV5Music4Text9StackView)] && readTextEnabled && highContrast) {
+			[self setBackgroundColor:erebusWhiteDef];
+		} else if ([self.superview isMemberOfClass:objc_getClass("_UIVisualEffectContentView")] && colorFlow) {
+			// Do nothing.
+		} else if ([self.superview isMemberOfClass:objc_getClass("Music.NowPlayingTransportControlStackView")]) {
+    		[self setBackgroundColor:primaryColor];
+    	} else {
+			[self setBackgroundColor:erebusDarkDef];
+		}
+	} else {
+		// Do nothing.
+	}
 }
 
 
 -(void)setBackgroundColor:(UIColor *)backgroundColor {
-    UIColor *origBGColor = backgroundColor;
-	if (enabled && !colorFlow) {
-		if ([self.superview isMemberOfClass:objc_getClass("Music.ArtworkComponentImageView")] || ([self.superview isMemberOfClass:objc_getClass("_UIVisualEffectContentView")] && colorFlow)) { // If it's an image.
-            // do nothing but im lazy
-		} else if ([self.superview isMemberOfClass: %c(_TtCV5Music4Text9StackView)] && readTextEnabled) {
-            backgroundColor = highContrast ? erebusLightDef : erebusLightDef;
+	%orig;
+	if (enabled && colorFlow == NO) {
+		if ([self.superview isMemberOfClass:objc_getClass("Music.ArtworkComponentImageView")]) { // If it's an image.
+			// Do nothing.
+		} else if ([self.superview isMemberOfClass: %c(_TtCV5Music4Text9StackView)] && readTextEnabled && highContrast == NO) {
+			%orig(erebusLightDef);
+		} else if ([self.superview isMemberOfClass: %c(_TtCV5Music4Text9StackView)] && readTextEnabled && highContrast) {
+			%orig(erebusWhiteDef);
+		} else if ([self.superview isMemberOfClass:objc_getClass("_UIVisualEffectContentView")] && colorFlow) {
+			// Do nothing.
 		} else if ([self.superview isMemberOfClass:objc_getClass("Music.NowPlayingTransportControlStackView")]) {
-    		backgroundColor = primaryColor;
+    		%orig(primaryColor);
     	} else {
-            backgroundColor = erebusDarkDef;
+			%orig(erebusDarkDef);
 		}
+	} else {
+		// Do nothing.
 	}
-    if(origBGColor != backgroundColor) backgroundColor = [backgroundColor colorWithAlphaComponent:CGColorGetAlpha(origBGColor.CGColor)];
-    %orig;
 }
 
 %end
@@ -238,11 +268,13 @@ static NSInteger imageRadius = 6;
 
 		// ^ Should allow you to change all images in the Music app radius.
 
-		if ([[prefs objectForKey:@"noctisEnabled"] boolValue]) {
+		if ([[prefs objectForKey:@"noctisEnabled"] boolValue] == YES) {
 			if([noctisPrefs objectForKey:@"enabled"]) {
 				noctis = [[noctisPrefs valueForKey:@"enabled"] boolValue];
 
-				if (!noctis) enabled = NO;
+				if (noctis == NO) {
+					enabled = NO;
+				}
 			}
 		}
 	}
