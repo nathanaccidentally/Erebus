@@ -12,6 +12,7 @@ static BOOL gradient = NO;
 static BOOL highContrast = YES;
 static BOOL colorFlow = NO;
 static BOOL noctis = NO;
+static BOOL artistTitle = YES;
 static NSInteger imageRadius = 6;
 
 // Text color needs to come first.
@@ -106,6 +107,16 @@ static NSInteger imageRadius = 6;
 
 %end
 
+%hook MPUMarqueeView
+
+-(void)layoutSubviews {
+	if (enabled && artistTitle == NO) {
+		[self setHidden:YES];
+	}
+}
+
+%end
+
 %hook UIView
 
 // ColorFlow 3 support thanks to DavidGoldman and AppleBetas.
@@ -192,8 +203,12 @@ static NSInteger imageRadius = 6;
 			highContrast = [[prefs valueForKey:@"highContrast"] boolValue];
 		}
 
-		if ([prefs objectForKey:@"imageRadius"]) {
-			imageRadius = [[prefs valueForKey:@"imageRadius"] intValue];
+		if ([prefs objectForKey:@"artistTitle"]) {
+			artistTitle = [[prefs valueForKey:@"artistTitle"] intValue];
+		}
+
+		if ([prefs objectForKey:@"highContrast"]) {
+			highContrast = [[prefs valueForKey:@"highContrast"] boolValue];
 		}
 
 		// ^ Should allow you to change all images in the Music app radius.

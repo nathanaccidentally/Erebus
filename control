@@ -1,6 +1,6 @@
 Package: com.nathanaccidentally.erebus
 Name: Erebus
-Depends: mobilesubstrate
+Depends: mobilesubstrate, firmware (>= 10.0)
 Version: 0.0.1
 Architecture: iphoneos-arm
 Description: A dark mode for the iOS 10 Music app.
