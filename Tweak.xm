@@ -22,19 +22,21 @@ static NSInteger imageRadius = 6;
 %hook UILabel
 
 -(UIColor *)textColor {
-	if (enabled) {
-		return [UIColor whiteColor];
-	} else {
-		return %orig;
-	}
+    if (enabled) return [UIColor whiteColor];
+    return %orig;
 }
 
 -(void)setTextColor:(UIColor *)textColor {
-	if (enabled) {
-		%orig([UIColor whiteColor]);
-	} else {
-		return %orig;
-	}
+    if(enabled) textColor = [UIColor whiteColor];
+    %orig;
+}
+
+%end
+
+%hook UIStatusBar
+
+-(UIColor *)foregroundColor {
+    return [UIColor whiteColor];
 }
 
 %end
@@ -88,10 +90,7 @@ static NSInteger imageRadius = 6;
 
 -(void)layoutSubviews {
 	%orig;
-	if ([NSStringFromClass([self.superview class]) isEqualToString:@"UIImageView"] && gradient == NO) {
-		%orig;
-		[self setHidden:YES];
-	}
+	if ([NSStringFromClass([self.superview class]) isEqualToString:@"UIImageView"] && gradient == NO) [self setHidden:YES];
 }
 
 %end
@@ -100,12 +99,7 @@ static NSInteger imageRadius = 6;
 
 -(void)layoutSubviews {
 	%orig;
-	if (gradient == NO) {
-		%orig;
-		[self setHidden:YES];
-	} else {
-		%orig;
-	}
+	if (!gradient) [self setHidden:YES];
 }
 
 // The gradient views are gradients in the background of things that look ugly.
@@ -136,45 +130,28 @@ static NSInteger imageRadius = 6;
 
 -(void)layoutSubviews {
 	%orig;
-	if (enabled) {
-		if ([self.superview isMemberOfClass:objc_getClass("Music.ArtworkComponentImageView")]) {
-			%orig;
-		} else if ([self.superview isMemberOfClass: %c(_TtCV5Music4Text9StackView)] && readTextEnabled && highContrast == NO) {
-			[self setBackgroundColor:erebusLightDef];
-		} else if ([self.superview isMemberOfClass: %c(_TtCV5Music4Text9StackView)] && readTextEnabled && highContrast) {
-			[self setBackgroundColor:erebusWhiteDef];
-		} else if ([self.superview isMemberOfClass:objc_getClass("_UIVisualEffectContentView")] && colorFlow) {
-			%orig;
-		} else if ([self.superview isMemberOfClass:objc_getClass("Music.NowPlayingTransportControlStackView")]) {
-    		[self setBackgroundColor:primaryColor];
-    	} else {
-			[self setBackgroundColor:erebusDarkDef];
-		}
-	} else {
-		%orig;
-	}
+    // We probably don't need this line anyways, but I kept it just in case.
+    [self setBackgroundColor:[self backgroundColor]];
 }
 
 
 -(void)setBackgroundColor:(UIColor *)backgroundColor {
-	%orig;
-	if (enabled && colorFlow == NO) {
-		if ([self.superview isMemberOfClass:objc_getClass("Music.ArtworkComponentImageView")]) { // If it's an image.
-			%orig;
+    UIColor *origBGColor = backgroundColor;
+	if (enabled && !colorFlow) {
+		if ([self.superview isMemberOfClass:objc_getClass("Music.ArtworkComponentImageView")] || ([self.superview isMemberOfClass:objc_getClass("_UIVisualEffectContentView")] && colorFlow)) { // If it's an image.
+            // do nothing but im lazy
 		} else if ([self.superview isMemberOfClass: %c(_TtCV5Music4Text9StackView)] && readTextEnabled && highContrast == NO) {
-			%orig(erebusLightDef);
+			backgroundColor = erebusLightDef;
 		} else if ([self.superview isMemberOfClass: %c(_TtCV5Music4Text9StackView)] && readTextEnabled && highContrast) {
-			%orig(erebusWhiteDef);
-		} else if ([self.superview isMemberOfClass:objc_getClass("_UIVisualEffectContentView")] && colorFlow) {
-			%orig;
+			backgroundColor = erebusWhiteDef;
 		} else if ([self.superview isMemberOfClass:objc_getClass("Music.NowPlayingTransportControlStackView")]) {
-    		%orig(primaryColor);
+    		backgroundColor = primaryColor;
     	} else {
-			%orig(erebusDarkDef);
+            backgroundColor = erebusDarkDef;
 		}
-	} else {
-		%orig;
 	}
+    if(origBGColor != backgroundColor) backgroundColor = [backgroundColor colorWithAlphaComponent:CGColorGetAlpha(origBGColor.CGColor)];
+    %orig;
 }
 
 %end

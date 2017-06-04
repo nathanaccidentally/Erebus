@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>items</key>
+	<array>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>Erebus</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<true/>
+			<key>defaults</key>
+			<string>com.nathanaccidentally.erebusprefs</string>
+			<key>key</key>
+			<string>isEnabled</string>
+			<key>label</key>
+			<string>Enabled</string>
+		</dict>
+		<dict>
+			<key>action</key>
+			<string>respring</string>
+			<key>cell</key>
+			<string>PSButtonCell</string>
+			<key>label</key>
+			<string>Respring</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>Options</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<false/>
+			<key>defaults</key>
+			<string>com.nathanaccidentally.erebusprefs</string>
+			<key>key</key>
+			<string>noctisEnabled</string>
+			<key>label</key>
+			<string>Noctis 🌒</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<true/>
+			<key>defaults</key>
+			<string>com.nathanaccidentally.erebusprefs</string>
+			<key>key</key>
+			<string>readTextEnabled</string>
+			<key>label</key>
+			<string>Readable Text 📖</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<true/>
+			<key>defaults</key>
+			<string>com.nathanaccidentally.erebusprefs</string>
+			<key>key</key>
+			<string>highContrast</string>
+			<key>label</key>
+			<string>High Contrast 📰</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<true/>
+			<key>defaults</key>
+			<string>com.nathanaccidentally.erebusprefs</string>
+			<key>key</key>
+			<string>gradient</string>
+			<key>label</key>
+			<string>Gradient ☄️</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>Other ✨</string>
+		</dict>
+		<dict>
+    		<key>cell</key>
+    		<string>PSEditTextCell</string>
+    		<key>placeholder</key>
+   		 	<string>6</string>
+   		 	<key>bestGuess</key>
+   		 	<string>6</string>
+   		 	<key>defaults</key>
+   		 	<string>com.nathanaccidentally.erebus</string>
+   			<key>isNumeric</key>
+   		 	<true/>
+   		 	<key>key</key>
+   		 	<string>imageRadius</string>
+   		 	<key>label</key>
+    		<string>Image Radius 📺</string>
+		</dict>
+		<dict>
+			<key>action</key>
+			<string>openDonate</string>
+			<key>cell</key>
+			<string>PSButtonCell</string>
+			<key>label</key>
+			<string>Donate 💫</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>footerText</key>
+			<string>Erebus is a dark mode for the iOS 10 Music app built by nathanaccidentally. 🌙</string>
+		</dict>
+	</array>
+	<key>title</key>
+	<string>Erebus</string>
+</dict>
+</plist>
