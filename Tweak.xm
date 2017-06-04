@@ -91,7 +91,7 @@ static NSInteger imageRadius = 6;
 
 -(void)layoutSubviews {
 	%orig;
-	if ([NSStringFromClass([self.superview class]) isEqualToString:@"UIImageView"] && gradient == NO) [self setHidden:YES];
+	if ([NSStringFromClass([self.superview class]) isEqualToString:@"UIImageView"] && !gradient) [self setHidden:YES];
 }
 
 %end
@@ -110,7 +110,7 @@ static NSInteger imageRadius = 6;
 %hook MPUMarqueeView
 
 -(void)layoutSubviews {
-	if (enabled && artistTitle == NO) {
+	if (enabled && !artistTitle) {
 		[self setHidden:YES];
 	}
 }
@@ -151,10 +151,8 @@ static NSInteger imageRadius = 6;
 	if (enabled && !colorFlow) {
 		if ([self.superview isMemberOfClass:objc_getClass("Music.ArtworkComponentImageView")] || ([self.superview isMemberOfClass:objc_getClass("_UIVisualEffectContentView")] && colorFlow)) { // If it's an image.
             // do nothing but im lazy
-		} else if ([self.superview isMemberOfClass: %c(_TtCV5Music4Text9StackView)] && readTextEnabled && highContrast == NO) {
-			backgroundColor = erebusLightDef;
-		} else if ([self.superview isMemberOfClass: %c(_TtCV5Music4Text9StackView)] && readTextEnabled && highContrast) {
-			backgroundColor = erebusWhiteDef;
+		} else if ([self.superview isMemberOfClass: %c(_TtCV5Music4Text9StackView)] && readTextEnabled) {
+            backgroundColor = highContrast ? erebusLightDef : erebusLightDef;
 		} else if ([self.superview isMemberOfClass:objc_getClass("Music.NowPlayingTransportControlStackView")]) {
     		backgroundColor = primaryColor;
     	} else {
@@ -213,13 +211,11 @@ static NSInteger imageRadius = 6;
 
 		// ^ Should allow you to change all images in the Music app radius.
 
-		if ([[prefs objectForKey:@"noctisEnabled"] boolValue] == YES) {
+		if ([[prefs objectForKey:@"noctisEnabled"] boolValue]) {
 			if([noctisPrefs objectForKey:@"enabled"]) {
 				noctis = [[noctisPrefs valueForKey:@"enabled"] boolValue];
 
-				if (noctis == NO) {
-					enabled = NO;
-				}
+				if (!noctis) enabled = NO;
 			}
 		}
 	}
