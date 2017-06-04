@@ -196,7 +196,7 @@ static NSInteger imageRadius = 6;
 // Thanks to LaughingQuoll and Cyanisaac for help with Noctis support.
 
 %ctor {
-	%init(_ungrouped, MusicImageView = objc_getClass("Music.ArtworkComponentImageView"), MusicGradientView = objc_getClass("Music.GradientView"), MusicSearchTextField = objc_getClass("Music.SearchTextField"));
+	%init(_ungrouped, MusicImageView = objc_getClass("Music.ArtworkComponentImageView"), MusicGradientView = objc_getClass("Music.GradientView"));
 
 	NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/com.nathanaccidentally.erebusprefs.plist"];
 	NSMutableDictionary *noctisPrefs = [[NSMutableDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/com.laughingquoll.noctisprefs.plist"];
