@@ -46,10 +46,22 @@ static NSInteger imageRadius = 6;
 
 -(void)layoutSubviews {
 	if (enabled) {
-		if([NSStringFromClass([self.superview class]) isEqualToString:@"Music.ArtworkComponentImageView"]) {
+		if ([NSStringFromClass([self.superview class]) isEqualToString:@"Music.ArtworkComponentImageView"]) {
 			[self setHidden:YES];
 		}
 	}
+}
+
+%end
+
+%hook MusicTransportButton
+
+-(void)setFrame:(CGRect)frame {
+	%orig;
+	if (enabled && artistTitle == NO) {
+			frame = CGRectMake(0, 0, frame.size.width, frame.size.height);
+			%orig(frame);
+		}
 }
 
 %end
@@ -120,12 +132,12 @@ static NSInteger imageRadius = 6;
 
 %end
 
-%hook MPUMarqueeView
+%hook UIButton
 
 -(void)layoutSubviews {
 	%orig;
-	if (enabled && artistTitle == NO && [self.superview isMemberOfClass: %c(UIStackView)]) { // Should hide if it's what we want.
-		[self setHidden:YES];
+	if (enabled && artistTitle == NO && [self.superview isMemberOfClass:objc_getClass("_MPUMarqueeContentView")]) { // Should hide if it's what we want.
+		[self.superview.superview setHidden:YES];
 	}
 }
 
@@ -226,7 +238,7 @@ static NSInteger imageRadius = 6;
 // Thanks to LaughingQuoll and Cyanisaac for help with Noctis support.
 
 %ctor {
-	%init(_ungrouped, MusicImageView = objc_getClass("Music.ArtworkComponentImageView"), MusicGradientView = objc_getClass("Music.GradientView"));
+	%init(_ungrouped, MusicImageView = objc_getClass("Music.ArtworkComponentImageView"), MusicGradientView = objc_getClass("Music.GradientView"), MusicTransportButton = objc_getClass("Music.NowPlayingTransportControlStackView"));
 
 	NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/com.nathanaccidentally.erebusprefs.plist"];
 	NSMutableDictionary *noctisPrefs = [[NSMutableDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/com.laughingquoll.noctisprefs.plist"];
