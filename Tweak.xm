@@ -34,10 +34,28 @@ static NSInteger imageRadius = 6;
 
 %end
 
+// Make status bar white
+
 %hook UIStatusBar
 
 -(UIColor *)foregroundColor {
     return [UIColor whiteColor];
+}
+
+%end
+
+// Tries (and I think fails) to set the activity indicators to all be white
+
+%hook UIActivityIndicatorView
+
+-(void)setActivityIndicatorViewStyle:(UIActivityIndicatorViewStyle)style {
+    if(style == UIActivityIndicatorViewStyleGray) style = UIActivityIndicatorViewStyleWhite;
+    %orig;
+}
+
+-(void)setColor:(UIColor *)color {
+    color = [UIColor whiteColor];
+    %orig;
 }
 
 %end
@@ -52,6 +70,15 @@ static NSInteger imageRadius = 6;
 			[self setHidden:YES];
 		}
 	}
+}
+
+%end
+
+%hook MusicTabBarPaletteBlurEffect
+
++(id)effectWithStyle:(long long)arg1 {
+    if(arg1 == UIBlurEffectStyleDark) arg1 = UIBlurEffectStyleLight;
+    return %orig;
 }
 
 %end
@@ -169,7 +196,7 @@ static NSInteger imageRadius = 6;
 // Thanks to LaughingQuoll and Cyanisaac for help with Noctis support.
 
 %ctor {
-	%init(_ungrouped, MusicImageView = objc_getClass("Music.ArtworkComponentImageView"), MusicGradientView = objc_getClass("Music.GradientView"));
+	%init(_ungrouped, MusicImageView = objc_getClass("Music.ArtworkComponentImageView"), MusicGradientView = objc_getClass("Music.GradientView"), MusicSearchTextField = objc_getClass("Music.SearchTextField"));
 
 	NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/com.nathanaccidentally.erebusprefs.plist"];
 	NSMutableDictionary *noctisPrefs = [[NSMutableDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/com.laughingquoll.noctisprefs.plist"];
