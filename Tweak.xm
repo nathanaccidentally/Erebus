@@ -5,7 +5,7 @@ UIColor *const erebusDarkDef = [UIColor colorWithRed:0.13 green:0.13 blue:0.13 a
 UIColor *const erebusDarkCtDef = [UIColor colorWithRed:0.29 green:0.29 blue:0.29 alpha:1.0];
 UIColor *const erebusLightDef = [UIColor colorWithRed:0.29 green:0.29 blue:0.29 alpha:1.0];
 UIColor *const erebusWhiteDef = [UIColor whiteColor];
-UIColor *primaryColor;
+UIColor *backgroundColor;
 static BOOL enabled = YES;
 static BOOL readTextEnabled = YES;
 static BOOL gradient = NO;
@@ -25,16 +25,20 @@ static NSInteger imageRadius = 6;
 -(UIColor *)textColor {
 	if (enabled) {
 		return [UIColor whiteColor];
-	} else {
-		return %orig;
 	}
+	return %orig;
 }
 
 -(void)setTextColor:(UIColor *)textColor {
 	if (enabled) {
 		%orig([UIColor whiteColor]);
-	} else {
-		return %orig;
+	}
+	return %orig;
+}
+
+-(void)layoutSubviews {
+	if (enabled && colorFlow && [self.superview isMemberOfClass:objc_getClass("Music.MiniPlayerButton")]) {
+		[self setBackgroundColor:backgroundColor];
 	}
 }
 
@@ -54,24 +58,15 @@ static NSInteger imageRadius = 6;
 
 %end
 
-%hook MusicTransportButton
-
--(void)setFrame:(CGRect)frame {
-	%orig;
-	if (enabled && artistTitle == NO) {
-			frame = CGRectMake(0, 0, frame.size.width, frame.size.height);
-			%orig(frame);
-		}
-}
-
-%end
-
 // Status bar thanks to AppleBetas.
 
 %hook UIStatusBar
 
 -(UIColor *)foregroundColor {
-    return [UIColor whiteColor];
+	if (enabled) {
+		return [UIColor whiteColor];
+	}
+    return %orig;
 }
 
 %end
@@ -180,10 +175,10 @@ static NSInteger imageRadius = 6;
 
 -(void)colorizeUI:(NSNotification *)notification {
     NSDictionary *userInfo = [notification userInfo];
-    primaryColor = userInfo[@"PrimaryColor"];
+    backgroundColor = userInfo[@"BackgroundColor"];
 
     if ([self.superview isMemberOfClass:objc_getClass("_UIVisualEffectContentView")]) {
-    	[self setBackgroundColor:primaryColor];
+    	[self setBackgroundColor:backgroundColor];
     }
 }
 
@@ -201,7 +196,7 @@ static NSInteger imageRadius = 6;
 		} else if ([self.superview isMemberOfClass:objc_getClass("_UIVisualEffectContentView")] && colorFlow) {
 			// Do nothing.
 		} else if ([self.superview isMemberOfClass:objc_getClass("Music.NowPlayingTransportControlStackView")]) {
-    		[self setBackgroundColor:primaryColor];
+    		[self setBackgroundColor:backgroundColor];
     	} else {
 			[self setBackgroundColor:erebusDarkDef];
 		}
@@ -223,7 +218,7 @@ static NSInteger imageRadius = 6;
 		} else if ([self.superview isMemberOfClass:objc_getClass("_UIVisualEffectContentView")] && colorFlow) {
 			// Do nothing.
 		} else if ([self.superview isMemberOfClass:objc_getClass("Music.NowPlayingTransportControlStackView")]) {
-    		%orig(primaryColor);
+    		%orig(backgroundColor);
     	} else {
 			%orig(erebusDarkDef);
 		}
@@ -238,7 +233,7 @@ static NSInteger imageRadius = 6;
 // Thanks to LaughingQuoll and Cyanisaac for help with Noctis support.
 
 %ctor {
-	%init(_ungrouped, MusicImageView = objc_getClass("Music.ArtworkComponentImageView"), MusicGradientView = objc_getClass("Music.GradientView"), MusicTransportButton = objc_getClass("Music.NowPlayingTransportControlStackView"));
+	%init(_ungrouped, MusicImageView = objc_getClass("Music.ArtworkComponentImageView"), MusicGradientView = objc_getClass("Music.GradientView"));
 
 	NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/com.nathanaccidentally.erebusprefs.plist"];
 	NSMutableDictionary *noctisPrefs = [[NSMutableDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/com.laughingquoll.noctisprefs.plist"];
